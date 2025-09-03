@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 // FIX: Changed import path from 'firebase/storage' to '@firebase/storage' to resolve module export errors, which can occur with certain project dependency setups.
@@ -6,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from '@firebase/storag
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { storage, db } from '../../firebase';
 import { Project, Document, CostItem } from '../../types';
-import { UploadIcon, FolderIcon, ChevronLeftIcon } from '../icons/Icons';
+import { UploadIcon, FolderIcon, ChevronLeftIcon } from '../icons/Icons.tsx';
 import Placeholder from '../ui/Placeholder';
 import DocumentRow from './DocumentRow';
 

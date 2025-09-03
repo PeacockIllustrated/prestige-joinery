@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Project, ProjectStatus } from '../../types';
-import { TrashIcon } from '../icons/Icons';
+import { TrashIcon } from '../icons/Icons.tsx';
 
 interface ProjectModalProps {
   project: Project | null;

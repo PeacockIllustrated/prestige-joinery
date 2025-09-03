@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority } from '../../types';
-import { TrashIcon } from '../icons/Icons';
+import { TrashIcon } from '../icons/Icons.tsx';
 import { useData } from '../../hooks/useData';
 
 interface TaskModalProps {

@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { useData } from '../../hooks/useData';
 import { Project, ProjectStatus, CostItem, Document } from '../../types';
-import { DollarSignIcon, TrendingUpIcon, AlertTriangleIcon, PlusIcon, ChevronDownIcon, FileTextIcon, EditIcon, TrashIcon } from '../icons/Icons';
+import { DollarSignIcon, TrendingUpIcon, AlertTriangleIcon, PlusIcon, ChevronDownIcon, FileTextIcon, EditIcon, TrashIcon } from '../icons/Icons.tsx';
 import KPICard from '../financials/KPICard';
 import CostModal from '../financials/LaborCostModal';
 import { addDoc, collection, doc, updateDoc, deleteDoc } from 'firebase/firestore';

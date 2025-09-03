@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Document, CostItem } from '../../types';
-import { MoreHorizontalIcon, DownloadIcon, TrashIcon, FileTextIcon } from '../icons/Icons';
+import { MoreHorizontalIcon, DownloadIcon, TrashIcon, FileTextIcon } from '../icons/Icons.tsx';
 import Badge from '../ui/Badge';
 
 interface DocumentRowProps {

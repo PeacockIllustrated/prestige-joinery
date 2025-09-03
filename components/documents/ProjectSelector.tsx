@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Project } from '../../types';
-import { FolderIcon } from '../icons/Icons';
+import { FolderIcon } from '../icons/Icons.tsx';
 
 interface ProjectSelectorProps {
   projects: Project[];

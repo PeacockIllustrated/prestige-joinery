@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { StaffMember } from '../../types';
-import { MoreHorizontalIcon, EditIcon, TrashIcon, MailIcon, PhoneIcon } from '../icons/Icons';
+import { MoreHorizontalIcon, EditIcon, TrashIcon, MailIcon, PhoneIcon } from '../icons/Icons.tsx';
 
 interface StaffCardProps {
   staffMember: StaffMember;

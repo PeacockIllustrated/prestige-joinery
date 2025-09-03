@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { doc, addDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { Task, TaskStatus, ProjectStatus, ProjectWithTasks } from '../../types';
-import { PlusIcon } from '../icons/Icons';
+import { PlusIcon } from '../icons/Icons.tsx';
 import TaskModal from '../tasks/TaskModal';
 import ProjectTaskGroup from '../tasks/ProjectTaskGroup';
 import CompletedProjectsAccordion from '../tasks/CompletedProjectsAccordion';

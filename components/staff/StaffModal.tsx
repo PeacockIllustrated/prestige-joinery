@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { StaffMember } from '../../types';
-import { TrashIcon } from '../icons/Icons';
+import { TrashIcon } from '../icons/Icons.tsx';
 
 interface StaffModalProps {
   staffMember: StaffMember | null;

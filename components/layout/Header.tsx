@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SearchIcon, BellIcon, MenuIcon } from '../icons/Icons';
+import { SearchIcon, BellIcon, MenuIcon } from '../icons/Icons.tsx';
 
 interface HeaderProps {
   title: string;

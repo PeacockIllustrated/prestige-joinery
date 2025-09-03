@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DashboardIcon, TasksIcon, CalendarIcon, FolderIcon, DollarSignIcon, UsersIcon, SettingsIcon, ChevronDownIcon, BriefcaseIcon } from '../icons/Icons';
+import { DashboardIcon, TasksIcon, CalendarIcon, FolderIcon, DollarSignIcon, UsersIcon, SettingsIcon, ChevronDownIcon, BriefcaseIcon } from '../icons/Icons.tsx';
 import { Page } from '../../types';
 
 interface SidebarProps {

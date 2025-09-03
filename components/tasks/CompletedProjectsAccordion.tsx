@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ProjectWithTasks, Task } from '../../types';
-import { ChevronRightIcon } from '../icons/Icons';
+import { ChevronRightIcon } from '../icons/Icons.tsx';
 import CompletedProjectItem from './CompletedProjectItem';
 
 interface CompletedProjectsAccordionProps {

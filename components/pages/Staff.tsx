@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { doc, addDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { StaffMember } from '../../types';
 import { useData } from '../../hooks/useData';
-import { PlusIcon, BriefcaseIcon } from '../icons/Icons';
+import { PlusIcon, BriefcaseIcon } from '../icons/Icons.tsx';
 import Placeholder from '../ui/Placeholder';
 import StaffCard from '../staff/StaffCard';
 import StaffModal from '../staff/StaffModal';

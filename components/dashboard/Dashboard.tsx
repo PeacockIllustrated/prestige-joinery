@@ -8,7 +8,7 @@ import { db, storage } from '../../firebase';
 import { ProjectStatus, Page, Project } from '../../types';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
-import { PlusIcon, DashboardIcon } from '../icons/Icons';
+import { PlusIcon, DashboardIcon } from '../icons/Icons.tsx';
 import { useData } from '../../hooks/useData';
 import Placeholder from '../ui/Placeholder';
 

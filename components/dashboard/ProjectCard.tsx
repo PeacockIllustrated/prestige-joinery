@@ -1,7 +1,8 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Project, Page } from '../../types';
 import ProgressBar from '../ui/ProgressBar';
-import { MoreHorizontalIcon, TasksIcon, CalendarIcon, FolderIcon, EditIcon, TrashIcon } from '../icons/Icons';
+import { MoreHorizontalIcon, TasksIcon, CalendarIcon, FolderIcon, EditIcon, TrashIcon } from '../icons/Icons.tsx';
 
 interface ProjectCardProps {
   project: Project;

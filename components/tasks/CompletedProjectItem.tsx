@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { ProjectWithTasks, Task, TaskStatus } from '../../types';
-import { ChevronRightIcon } from '../icons/Icons';
+import { ChevronRightIcon } from '../icons/Icons.tsx';
 
 interface CompletedProjectItemProps {
     project: ProjectWithTasks;

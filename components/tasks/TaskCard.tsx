@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Task, TaskPriority } from '../../types';
-import { FlagIcon } from '../icons/Icons';
+import { FlagIcon } from '../icons/Icons.tsx';
 import { useData } from '../../hooks/useData';
 
 interface TaskCardProps {

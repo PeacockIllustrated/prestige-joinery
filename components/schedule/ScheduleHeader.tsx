@@ -1,7 +1,7 @@
 
 import React from 'react';
 // FIX: ChevronLeftIcon is now correctly imported from the centralized Icons file.
-import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '../icons/Icons.tsx';
 import { ScheduleView } from '../pages/Schedule';
 import { monthYearFormat } from '../../utils/dateUtils';
 
