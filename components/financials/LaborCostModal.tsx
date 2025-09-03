@@ -53,11 +53,22 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
         alert("Please provide a description and a valid amount.");
         return;
     }
-    onSave({
-        ...formData,
+
+    // Deconstruct to separate documentId
+    const { documentId, ...rest } = formData;
+    
+    const dataToSave: Omit<CostItem, 'id' | 'projectId'> = {
+        ...rest,
         date: new Date(formData.date).toISOString(),
-        documentId: formData.documentId || undefined, // Send undefined if empty
-    });
+    };
+
+    // Only add documentId to the object if it has a value.
+    // This prevents sending `documentId: undefined` to Firestore.
+    if (documentId) {
+        dataToSave.documentId = documentId;
+    }
+
+    onSave(dataToSave);
   };
 
   if (!isOpen) return null;
