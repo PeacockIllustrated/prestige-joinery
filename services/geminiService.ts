@@ -1,6 +1,8 @@
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { InvoiceData } from '../types';
 
+// IMPORTANT: Your Gemini API key should be set as an environment variable named `API_KEY`.
+// Do not hardcode your key here for security reasons. The application is configured to read it from the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const schema = {
