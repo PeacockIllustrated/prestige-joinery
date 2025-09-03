@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Task, TaskStatus } from '../../../types';
-import { useData } from '../../../hooks/useData';
+import { Task, TaskStatus } from '../../types';
+import { useData } from '../../hooks/useData';
 import { CheckCircleIcon, ClockIcon } from '../icons/Icons.tsx';
 
 interface ClientPortalTaskItemProps {

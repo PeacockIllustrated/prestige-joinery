@@ -15,8 +15,6 @@ const ClientPortal: React.FC = () => {
     );
 
     const selectedProject = clientVisibleProjects.find(p => p.id === selectedProjectId);
-    const projectTasks = tasks.filter(t => t.projectId === selectedProjectId);
-    const projectDocuments = documents.filter(d => d.projectId === selectedProjectId);
 
     if (!selectedProject) {
         return (
@@ -34,6 +32,9 @@ const ClientPortal: React.FC = () => {
             </div>
         );
     }
+
+    const projectTasks = tasks.filter(t => t.projectId === selectedProjectId);
+    const projectDocuments = documents.filter(d => d.projectId === selectedProjectId);
 
     return (
         <ClientProjectDetailView
