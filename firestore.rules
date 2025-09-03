@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// These rules are permissive for development and should be updated for production.
+// For example, you should use authentication to restrict access to data.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow only read access to all documents.
+    // This is more secure than allowing writes, but still not suitable for production.
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
