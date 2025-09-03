@@ -1,7 +1,8 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { collection, onSnapshot, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Project, Task, StaffMember, Document, CostItem } from '../types';
+import { sampleProjects, sampleTasks, sampleStaff, sampleCosts } from '../sample-data';
 
 interface DataContextProps {
     projects: Project[];
@@ -10,6 +11,8 @@ interface DataContextProps {
     documents: Document[];
     costs: CostItem[];
     loading: boolean;
+    showSampleData: boolean;
+    toggleShowSampleData: () => void;
 }
 
 export const DataContext = createContext<DataContextProps>({
@@ -19,6 +22,8 @@ export const DataContext = createContext<DataContextProps>({
     documents: [],
     costs: [],
     loading: true,
+    showSampleData: false,
+    toggleShowSampleData: () => {},
 });
 
 interface DataProviderProps {
@@ -30,43 +35,56 @@ const docToType = <T,>(doc: QueryDocumentSnapshot<DocumentData>): T => {
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
-    const [documents, setDocuments] = useState<Document[]>([]);
-    const [costs, setCosts] = useState<CostItem[]>([]);
+    const [liveProjects, setLiveProjects] = useState<Project[]>([]);
+    const [liveTasks, setLiveTasks] = useState<Task[]>([]);
+    const [liveStaffMembers, setLiveStaffMembers] = useState<StaffMember[]>([]);
+    const [liveDocuments, setLiveDocuments] = useState<Document[]>([]);
+    const [liveCosts, setLiveCosts] = useState<CostItem[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [showSampleData, setShowSampleData] = useState<boolean>(() => {
+        try {
+            const stored = localStorage.getItem('showSampleData');
+            return stored ? JSON.parse(stored) : false;
+        } catch {
+            return false;
+        }
+    });
+
+    useEffect(() => {
+        localStorage.setItem('showSampleData', JSON.stringify(showSampleData));
+    }, [showSampleData]);
+
+    const toggleShowSampleData = () => {
+        setShowSampleData(prev => !prev);
+    };
 
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
 
             const unsubProjects = onSnapshot(collection(db, 'projects'), (snapshot) => {
-                setProjects(snapshot.docs.map(doc => docToType<Project>(doc)));
+                setLiveProjects(snapshot.docs.map(doc => docToType<Project>(doc)));
             });
 
             const unsubTasks = onSnapshot(collection(db, 'tasks'), (snapshot) => {
-                setTasks(snapshot.docs.map(doc => docToType<Task>(doc)));
+                setLiveTasks(snapshot.docs.map(doc => docToType<Task>(doc)));
             });
 
             const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
-                setStaffMembers(snapshot.docs.map(doc => docToType<StaffMember>(doc)));
+                setLiveStaffMembers(snapshot.docs.map(doc => docToType<StaffMember>(doc)));
             });
 
             const unsubDocuments = onSnapshot(collection(db, 'documents'), (snapshot) => {
-                setDocuments(snapshot.docs.map(doc => docToType<Document>(doc)));
+                setLiveDocuments(snapshot.docs.map(doc => docToType<Document>(doc)));
             });
             
             const unsubCosts = onSnapshot(collection(db, 'costs'), (snapshot) => {
-                setCosts(snapshot.docs.map(doc => docToType<CostItem>(doc)));
+                setLiveCosts(snapshot.docs.map(doc => docToType<CostItem>(doc)));
             });
 
-            // A simple way to stop the initial loading state.
-            // In a real app with larger datasets, you might wait for the first snapshot of all collections.
             setTimeout(() => setLoading(false), 1500);
 
-
-            // Cleanup listeners on unmount
             return () => {
                 unsubProjects();
                 unsubTasks();
@@ -79,8 +97,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         fetchInitialData();
     }, []);
 
+    const projects = useMemo(() => showSampleData ? [...sampleProjects, ...liveProjects] : liveProjects, [showSampleData, liveProjects]);
+    const tasks = useMemo(() => showSampleData ? [...sampleTasks, ...liveTasks] : liveTasks, [showSampleData, liveTasks]);
+    const staffMembers = useMemo(() => showSampleData ? [...sampleStaff, ...liveStaffMembers] : liveStaffMembers, [showSampleData, liveStaffMembers]);
+    const costs = useMemo(() => showSampleData ? [...sampleCosts, ...liveCosts] : liveCosts, [showSampleData, liveCosts]);
+    const documents = useMemo(() => liveDocuments, [liveDocuments]); // No sample documents for now.
+
     return (
-        <DataContext.Provider value={{ projects, tasks, staffMembers, documents, costs, loading }}>
+        <DataContext.Provider value={{ projects, tasks, staffMembers, documents, costs, loading, showSampleData, toggleShowSampleData }}>
             {children}
         </DataContext.Provider>
     );

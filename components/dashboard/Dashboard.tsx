@@ -44,6 +44,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
   const handleSaveProject = async (projectToSave: Omit<Project, 'id'> & { id?: string }) => {
     try {
       if (projectToSave.id) {
+        const originalProject = projects.find(p => p.id === projectToSave.id);
+        if (originalProject?.isSample) {
+            alert("Sample projects are read-only and cannot be edited.");
+            handleCloseProjectModal();
+            return;
+        }
         // Editing existing project
         const projectRef = doc(db, 'projects', projectToSave.id);
         const { id, ...projectData } = projectToSave;
@@ -62,6 +68,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
   };
 
   const handleDeleteProject = async (projectId: string) => {
+    const projectToDelete = projects.find(p => p.id === projectId);
+    if (projectToDelete?.isSample) {
+        alert("Sample projects are read-only and cannot be deleted.");
+        return;
+    }
+
     if (!window.confirm('Are you sure you want to delete this project and all its tasks and documents? This action cannot be undone.')) {
         return;
     }
@@ -136,10 +148,10 @@ const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
           </div>
           <button 
             onClick={() => handleOpenProjectModal()}
-            className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-5 py-2.5 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105"
+            className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-4 py-2.5 sm:px-5 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105"
           >
-              <PlusIcon className="w-5 h-5 mr-2" />
-              New Project
+              <PlusIcon className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline">New Project</span>
           </button>
         </div>
 

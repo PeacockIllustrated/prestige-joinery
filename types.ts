@@ -13,6 +13,7 @@ export interface Project {
   progress: number; // Percentage 0-100
   status: ProjectStatus;
   quoteAmount?: number;
+  isSample?: boolean;
 }
 
 export enum TaskStatus {
@@ -34,6 +35,7 @@ export interface StaffMember {
   role: string;
   email: string;
   phone: string;
+  isSample?: boolean;
 }
 
 export interface Task {
@@ -45,6 +47,7 @@ export interface Task {
   dueDate: string; // ISO 8601 format
   assigneeId: string;
   projectId: string;
+  isSample?: boolean;
 }
 
 export interface Document {
@@ -68,6 +71,7 @@ export interface CostItem {
   type: 'material' | 'labor';
   date: string; // ISO 8601 format
   documentId?: string; // Optional link to a document
+  isSample?: boolean;
 }
 
 export interface InvoiceData {

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { doc, addDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -47,6 +48,11 @@ const Tasks: React.FC = () => {
   };
 
   const handleSaveTask = async (taskToSave: Task) => {
+    if (taskToSave.isSample) {
+        alert("Sample tasks are read-only and cannot be edited.");
+        handleCloseModal();
+        return;
+    }
     try {
         if (taskToSave.id) {
             // Editing existing task
@@ -66,6 +72,12 @@ const Tasks: React.FC = () => {
   };
   
   const handleDeleteTask = async (taskId: string) => {
+    const taskToDelete = tasks.find(t => t.id === taskId);
+    if (taskToDelete?.isSample) {
+        alert("Sample tasks are read-only and cannot be deleted.");
+        handleCloseModal();
+        return;
+    }
     try {
         const taskRef = doc(db, 'tasks', taskId);
         await deleteDoc(taskRef);
@@ -81,15 +93,15 @@ const Tasks: React.FC = () => {
     <>
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-prestige-charcoal">Task Board</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-prestige-charcoal">Task Board</h1>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-5 py-2.5 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105"
+            className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-4 py-2.5 sm:px-5 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105"
             disabled={projects.length === 0}
             title={projects.length === 0 ? "Create a project before adding tasks" : "Add Task"}
           >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Add Task
+            <PlusIcon className="w-5 h-5 sm:mr-2" />
+            <span className="hidden sm:inline">Add Task</span>
           </button>
         </div>
         

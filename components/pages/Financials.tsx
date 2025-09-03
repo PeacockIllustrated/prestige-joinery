@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import { useData } from '../../hooks/useData';
 import { Project, ProjectStatus, CostItem, Document } from '../../types';
@@ -23,7 +24,7 @@ const ProjectCostDetails: React.FC<{
     onDelete: (costId: string) => void;
 }> = ({ costs, documents, onEdit, onDelete }) => {
 
-    const formatCurrency = (amount: number) => amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    const formatCurrency = (amount: number) => amount.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
     const getDocument = (docId: string) => documents.find(d => d.id === docId);
 
     if (costs.length === 0) {
@@ -31,7 +32,7 @@ const ProjectCostDetails: React.FC<{
     }
 
     return (
-        <div className="bg-prestige-light-gray/50 p-4 animate-accordion-down">
+        <div className="bg-prestige-light-gray/50 p-2 sm:p-4 animate-accordion-down">
             <div className="overflow-x-auto">
                 <table className="min-w-full text-left bg-white rounded-lg shadow-inner">
                     <thead className="border-b border-prestige-gray">
@@ -86,8 +87,8 @@ const Financials: React.FC = () => {
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
 
   const formatCurrency = (amount?: number) => {
-    if (typeof amount !== 'number') return '$0.00';
-    return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    if (typeof amount !== 'number') return '£0.00';
+    return amount.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
   };
 
   const activeProjects = useMemo(() => 
@@ -151,6 +152,12 @@ const Financials: React.FC = () => {
   };
   
   const handleDeleteCost = async (costId: string) => {
+    const costToDelete = costs.find(c => c.id === costId);
+    if (costToDelete?.isSample) {
+        alert("Sample costs are read-only and cannot be deleted.");
+        return;
+    }
+
     if (!window.confirm("Are you sure you want to delete this cost item?")) return;
     try {
         await deleteDoc(doc(db, 'costs', costId));
@@ -161,6 +168,17 @@ const Financials: React.FC = () => {
   };
 
   const handleSaveCost = async (costData: Omit<CostItem, 'projectId'> & { id?: string }) => {
+    if (costData.id) { // Editing
+        const originalCost = costs.find(c => c.id === costData.id);
+        if (originalCost?.isSample) {
+            alert("Sample costs are read-only and cannot be edited.");
+            setIsCostModalOpen(false);
+            setCostModalProject(null);
+            setEditingCost(null);
+            return;
+        }
+    }
+
     const { id, ...data } = costData;
     try {
         if (id) {
@@ -192,7 +210,7 @@ const Financials: React.FC = () => {
     <>
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-prestige-charcoal">Financial Overview</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-prestige-charcoal">Financial Overview</h1>
         <p className="text-prestige-text mt-1">Summary of all active projects.</p>
       </div>
 

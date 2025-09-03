@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DashboardIcon, TasksIcon, CalendarIcon, FolderIcon, DollarSignIcon, UsersIcon, SettingsIcon, ChevronDownIcon, BriefcaseIcon } from '../icons/Icons';
 import { Page } from '../../types';
@@ -5,6 +6,8 @@ import { Page } from '../../types';
 interface SidebarProps {
   activePage: Page;
   setActivePage: (page: Page) => void;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
 const Logo: React.FC = () => (
@@ -55,7 +58,7 @@ const UserProfile: React.FC = () => (
   </div>
 );
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, isOpen, setIsOpen }) => {
   // FIX: Replaced JSX.Element with React.ReactNode to resolve "Cannot find namespace 'JSX'" error.
   const navItems: { icon: React.ReactNode; label: Page }[] = [
     { icon: <DashboardIcon />, label: 'Project Hub' },
@@ -68,8 +71,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage }) => {
     { icon: <SettingsIcon />, label: 'Settings' },
   ];
 
+  const handleNavClick = (page: Page) => {
+    setActivePage(page);
+    setIsOpen(false); // Close sidebar on nav item click on mobile
+  };
+
   return (
-    <div className="w-64 bg-prestige-charcoal text-white flex flex-col flex-shrink-0">
+    <div className={`w-64 bg-prestige-charcoal text-white flex flex-col flex-shrink-0 fixed md:relative h-full z-30 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       <Logo />
       <nav className="flex-1 space-y-2 px-4">
         {navItems.map(({ icon, label }) => (
@@ -78,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage }) => {
             icon={icon} 
             label={label} 
             active={activePage === label} 
-            onClick={() => setActivePage(label)}
+            onClick={() => handleNavClick(label)}
           />
         ))}
       </nav>

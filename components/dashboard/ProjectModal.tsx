@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Project, ProjectStatus } from '../../types';
 import { TrashIcon } from '../icons/Icons';
@@ -83,7 +84,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
+        className="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg md:max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
         onClick={e => e.stopPropagation()}
         style={{ animationFillMode: 'forwards' }}
       >
@@ -92,7 +93,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
             <h2 className="text-2xl font-bold text-prestige-charcoal">{project ? 'Edit Project' : 'Add New Project'}</h2>
           </div>
 
-          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[70vh] md:max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label htmlFor="name" className={labelStyles}>Project Name</label>
@@ -113,7 +114,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
                 </select>
               </div>
               <div>
-                <label htmlFor="quoteAmount" className={labelStyles}>Quote Amount ($)</label>
+                <label htmlFor="quoteAmount" className={labelStyles}>Quote Amount (£)</label>
                 <input type="number" name="quoteAmount" id="quoteAmount" value={formData.quoteAmount} onChange={handleChange} min="0" step="0.01" className={inputStyles} />
               </div>
                <div className="md:col-span-2">

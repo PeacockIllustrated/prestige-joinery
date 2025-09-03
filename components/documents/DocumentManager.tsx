@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 // FIX: Changed import path from 'firebase/storage' to '@firebase/storage' to resolve module export errors, which can occur with certain project dependency setups.
@@ -5,7 +6,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from '@firebase/storag
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { storage, db } from '../../firebase';
 import { Project, Document, CostItem } from '../../types';
-import { UploadIcon, FolderIcon } from '../icons/Icons';
+import { UploadIcon, FolderIcon, ChevronLeftIcon } from '../icons/Icons';
 import Placeholder from '../ui/Placeholder';
 import DocumentRow from './DocumentRow';
 
@@ -13,9 +14,10 @@ interface DocumentManagerProps {
   project: Project | null;
   documents: Document[];
   costs: CostItem[];
+  onBack: () => void;
 }
 
-const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, costs }) => {
+const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, costs, onBack }) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -73,7 +75,7 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, c
 
   if (!project) {
     return (
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center p-4">
             <Placeholder
                 icon={<FolderIcon />}
                 title="Select a Project"
@@ -86,15 +88,20 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, c
   return (
     <>
       <div className="p-4 border-b border-prestige-gray flex justify-between items-center">
-        <h2 className="text-xl font-bold text-prestige-charcoal truncate">{project.name}</h2>
+        <div className="flex items-center min-w-0">
+            <button onClick={onBack} className="mr-3 md:hidden text-prestige-charcoal p-1 -ml-1">
+                <ChevronLeftIcon />
+            </button>
+            <h2 className="text-xl font-bold text-prestige-charcoal truncate">{project.name}</h2>
+        </div>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
         <button
           onClick={handleUploadClick}
           disabled={isUploading}
-          className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="flex items-center justify-center bg-prestige-teal text-prestige-charcoal font-bold px-4 py-2 rounded-lg shadow-sm hover:bg-opacity-90 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
         >
-          <UploadIcon className="w-5 h-5 mr-2" />
-          {isUploading ? 'Uploading...' : 'Upload File'}
+          <UploadIcon className="w-5 h-5 sm:mr-2" />
+          <span className="hidden sm:inline">{isUploading ? 'Uploading...' : 'Upload'}</span>
         </button>
       </div>
       <div className="flex-grow overflow-y-auto">
@@ -103,8 +110,8 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, c
                 <thead className="border-b border-prestige-gray bg-prestige-light-gray/50 sticky top-0">
                     <tr>
                         <th scope="col" className="px-6 py-3 text-sm font-semibold text-prestige-charcoal">Name</th>
-                        <th scope="col" className="px-6 py-3 text-sm font-semibold text-prestige-charcoal">Type</th>
-                        <th scope="col" className="px-6 py-3 text-sm font-semibold text-prestige-charcoal">Date Added</th>
+                        <th scope="col" className="hidden sm:table-cell px-6 py-3 text-sm font-semibold text-prestige-charcoal">Type</th>
+                        <th scope="col" className="hidden md:table-cell px-6 py-3 text-sm font-semibold text-prestige-charcoal">Date Added</th>
                         <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
                     </tr>
                 </thead>

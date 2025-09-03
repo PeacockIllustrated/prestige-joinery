@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Document, CostItem } from '../../types';
 import { MoreHorizontalIcon, DownloadIcon, TrashIcon, FileTextIcon } from '../icons/Icons';
@@ -46,14 +47,14 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ document: documentProp, costs
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-prestige-charcoal">
         <div className="flex items-center">
             <FileTextIcon className="w-5 h-5 mr-3 text-prestige-text" />
-            <span className="truncate max-w-xs">{documentProp.name}</span>
+            <span className="truncate max-w-[150px] sm:max-w-xs">{documentProp.name}</span>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{documentProp.fileType}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formattedDate}</td>
+      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{documentProp.fileType}</td>
+      <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formattedDate}</td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <div className="flex items-center justify-end space-x-4">
-            {isLinkedToCost && <Badge text="Linked to Cost" color="green"/>}
+            {isLinkedToCost && <Badge text="Linked" color="green"/>}
             <div className="relative inline-block text-left" ref={menuRef}>
                 <button 
                     className="text-gray-400 hover:text-prestige-charcoal p-2 -m-2 rounded-full"

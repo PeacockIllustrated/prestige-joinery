@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { InvoiceData } from '../../types';
 
@@ -53,7 +54,7 @@ const InvoiceConfirmationModal: React.FC<InvoiceConfirmationModalProps> = ({ isO
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
+        className="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg md:max-w-4xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
         onClick={e => e.stopPropagation()}
         style={{ animationFillMode: 'forwards' }}
       >
@@ -63,7 +64,7 @@ const InvoiceConfirmationModal: React.FC<InvoiceConfirmationModalProps> = ({ isO
             <p className="text-sm text-prestige-text">Please verify the information extracted by the AI.</p>
           </div>
 
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[80vh] overflow-y-auto">
             <div className="space-y-4">
               <div>
                 <label htmlFor="vendor" className={labelStyles}>Vendor</label>
@@ -74,7 +75,7 @@ const InvoiceConfirmationModal: React.FC<InvoiceConfirmationModalProps> = ({ isO
                 <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} required className={inputStyles} />
               </div>
               <div>
-                <label htmlFor="totalAmount" className={labelStyles}>Total Amount ($)</label>
+                <label htmlFor="totalAmount" className={labelStyles}>Total Amount (£)</label>
                 <input type="number" name="totalAmount" id="totalAmount" value={formData.totalAmount} onChange={handleChange} required min="0" step="0.01" className={inputStyles} />
               </div>
             </div>

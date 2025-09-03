@@ -16,9 +16,9 @@ const TeamView: React.FC<TeamViewProps> = ({ currentDate, tasks, users, onSelect
     const days = getWeekDays(currentDate);
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col overflow-x-auto">
             {/* Header */}
-            <div className="grid" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+            <div className="grid min-w-[900px]" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
                 <div className="p-2 border-b border-r border-prestige-gray font-bold text-prestige-charcoal">Team Member</div>
                 {days.map(day => (
                     <div key={day.toISOString()} className="text-center p-2 border-b border-r border-prestige-gray">
@@ -29,7 +29,7 @@ const TeamView: React.FC<TeamViewProps> = ({ currentDate, tasks, users, onSelect
             </div>
             {/* Body */}
             <div className="flex-grow overflow-y-auto">
-                 <div className="grid" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+                 <div className="grid min-w-[900px]" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
                     {users.flatMap(user => [
                          <div key={`${user.id}-name`} className="p-2 border-b border-r border-prestige-gray flex items-center space-x-2">
                              <img src={user.avatarUrl} alt={user.name} className="w-8 h-8 rounded-full"/>

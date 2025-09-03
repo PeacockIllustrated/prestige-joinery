@@ -17,6 +17,7 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<Page>('Project Hub');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { loading } = useData();
 
   const renderContent = () => {
@@ -47,11 +48,24 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-prestige-light-gray font-sans text-prestige-charcoal">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+    <div className="flex h-screen bg-prestige-light-gray font-sans text-prestige-charcoal overflow-hidden">
+       {/* Sidebar backdrop for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        ></div>
+      )}
+      <Sidebar 
+        activePage={activePage} 
+        setActivePage={setActivePage}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title={activePage} />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-prestige-light-gray p-6 md:p-8">
+        <Header title={activePage} onMenuClick={() => setIsSidebarOpen(true)} />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-prestige-light-gray p-4 sm:p-6 md:p-8">
           {renderContent()}
         </main>
       </div>

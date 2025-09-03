@@ -24,6 +24,14 @@ const Staff: React.FC = () => {
   };
 
   const handleSaveStaff = async (staffToSave: Omit<StaffMember, 'id'> & { id?: string }) => {
+    if (staffToSave.id) { // Editing
+        const originalStaff = staffMembers.find(s => s.id === staffToSave.id);
+        if (originalStaff?.isSample) {
+            alert("Sample staff members are read-only and cannot be edited.");
+            handleCloseStaffModal();
+            return;
+        }
+    }
     try {
       if (staffToSave.id) {
         // Editing existing staff member
@@ -44,6 +52,11 @@ const Staff: React.FC = () => {
   };
 
   const handleDeleteStaff = async (staffId: string) => {
+    const staffToDelete = staffMembers.find(s => s.id === staffId);
+    if (staffToDelete?.isSample) {
+        alert("Sample staff members are read-only and cannot be deleted.");
+        return;
+    }
     if (!window.confirm('Are you sure you want to delete this staff member? This cannot be undone.')) {
         return;
     }

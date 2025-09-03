@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Project, CostItem } from '../../types';
 import { useData } from '../../hooks/useData';
@@ -99,7 +100,7 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project,
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
+        className="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
         onClick={e => e.stopPropagation()}
         style={{ animationFillMode: 'forwards' }}
       >
@@ -109,14 +110,14 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project,
             <p className="text-sm text-prestige-text">For project: <span className="font-semibold">{project.name}</span></p>
           </div>
 
-          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[70vh] md:max-h-[60vh] overflow-y-auto">
             <div>
               <label htmlFor="description" className={labelStyles}>Description</label>
-              <input type="text" name="description" id="description" value={formData.description} onChange={handleChange} required className={inputStyles} placeholder="e.g., Timber from Bunnings" />
+              <input type="text" name="description" id="description" value={formData.description} onChange={handleChange} required className={inputStyles} placeholder="e.g., Timber from Wickes" />
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="amount" className={labelStyles}>Amount ($)</label>
+                    <label htmlFor="amount" className={labelStyles}>Amount (£)</label>
                     <input type="number" name="amount" id="amount" value={formData.amount} onChange={handleChange} required min="0.01" step="0.01" className={inputStyles} />
                 </div>
                 <div>

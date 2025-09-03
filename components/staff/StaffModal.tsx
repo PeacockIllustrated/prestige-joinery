@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { StaffMember } from '../../types';
 import { TrashIcon } from '../icons/Icons';
@@ -75,7 +76,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ staffMember, onClose, onSave, o
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
+        className="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg md:max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
         onClick={e => e.stopPropagation()}
         style={{ animationFillMode: 'forwards' }}
       >
@@ -84,7 +85,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ staffMember, onClose, onSave, o
             <h2 className="text-2xl font-bold text-prestige-charcoal">{staffMember ? 'Edit Staff Member' : 'Add New Staff Member'}</h2>
           </div>
 
-          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[70vh] md:max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="name" className={labelStyles}>Full Name</label>

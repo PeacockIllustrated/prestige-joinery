@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Task, TaskStatus, TaskPriority } from '../../types';
 import { TrashIcon } from '../icons/Icons';
@@ -78,7 +79,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave, onDelete }
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
+        className="bg-white rounded-xl shadow-2xl w-11/12 max-w-lg md:max-w-2xl transform transition-all duration-300 scale-95 opacity-0 animate-fade-in-scale"
         onClick={e => e.stopPropagation()}
         style={{ animationFillMode: 'forwards' }}
       >
@@ -87,7 +88,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave, onDelete }
             <h2 className="text-2xl font-bold text-prestige-charcoal">{task ? 'Edit Task' : 'Add New Task'}</h2>
           </div>
 
-          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+          <div className="p-6 space-y-4 max-h-[70vh] md:max-h-[60vh] overflow-y-auto">
             <div>
               <label htmlFor="title" className={labelStyles}>Title</label>
               <input type="text" name="title" id="title" value={formData.title} onChange={handleChange} required className={inputStyles} />
