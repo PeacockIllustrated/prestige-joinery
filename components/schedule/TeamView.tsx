@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Task, User } from '../../types';
+import { Task, StaffMember } from '../../types';
 import { getWeekDays, isSameDay, isToday, shortDayFormat } from '../../utils/dateUtils';
 import { TaskWithProject } from '../pages/Schedule';
 import ScheduleTask from './ScheduleTask';
@@ -8,7 +8,7 @@ import ScheduleTask from './ScheduleTask';
 interface TeamViewProps {
     currentDate: Date;
     tasks: TaskWithProject[];
-    users: User[];
+    users: StaffMember[];
     onSelectTask: (task: Task) => void;
 }
 

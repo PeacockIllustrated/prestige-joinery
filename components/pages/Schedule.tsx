@@ -22,7 +22,7 @@ export interface TaskWithProject extends Task {
 }
 
 const Schedule: React.FC = () => {
-  const { tasks, projects, users } = useData();
+  const { tasks, projects, staffMembers } = useData();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ScheduleView>('month');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -84,7 +84,7 @@ const Schedule: React.FC = () => {
       case 'week':
         return <WeekView currentDate={currentDate} tasks={tasksWithProjectData} onSelectTask={handleSelectTask} />;
       case 'team':
-        return <TeamView currentDate={currentDate} tasks={tasksWithProjectData} users={users} onSelectTask={handleSelectTask} />;
+        return <TeamView currentDate={currentDate} tasks={tasksWithProjectData} users={staffMembers} onSelectTask={handleSelectTask} />;
       default:
         return null;
     }

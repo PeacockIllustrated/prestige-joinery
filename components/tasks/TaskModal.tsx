@@ -11,14 +11,14 @@ interface TaskModalProps {
 }
 
 const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave, onDelete }) => {
-  const { projects, users } = useData();
+  const { projects, staffMembers } = useData();
   const [formData, setFormData] = useState<Omit<Task, 'id'>>({
     title: '',
     description: '',
     status: TaskStatus.ToDo,
     priority: TaskPriority.Medium,
     dueDate: new Date().toISOString().split('T')[0],
-    assigneeId: users[0]?.id || '',
+    assigneeId: staffMembers[0]?.id || '',
     projectId: projects[0]?.id || '',
   });
 
@@ -31,11 +31,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave, onDelete }
       // Set defaults for new task based on available data
       setFormData(prev => ({
         ...prev,
-        assigneeId: users[0]?.id || '',
+        assigneeId: staffMembers[0]?.id || '',
         projectId: projects[0]?.id || '',
       }));
     }
-  }, [task, users, projects]);
+  }, [task, staffMembers, projects]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -100,7 +100,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave, onDelete }
               <div>
                 <label htmlFor="assigneeId" className={labelStyles}>Assign To</label>
                 <select name="assigneeId" id="assigneeId" value={formData.assigneeId} onChange={handleChange} className={inputStyles}>
-                  {users.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}
+                  {staffMembers.map(user => <option key={user.id} value={user.id}>{user.name}</option>)}
                 </select>
               </div>
               <div>

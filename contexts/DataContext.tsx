@@ -1,19 +1,21 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { collection, onSnapshot, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Project, Task, User } from '../types';
+import { Project, Task, StaffMember, Document } from '../types';
 
 interface DataContextProps {
     projects: Project[];
     tasks: Task[];
-    users: User[];
+    staffMembers: StaffMember[];
+    documents: Document[];
     loading: boolean;
 }
 
 export const DataContext = createContext<DataContextProps>({
     projects: [],
     tasks: [],
-    users: [],
+    staffMembers: [],
+    documents: [],
     loading: true,
 });
 
@@ -28,7 +30,8 @@ const docToType = <T,>(doc: QueryDocumentSnapshot<DocumentData>): T => {
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
+    const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+    const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -44,7 +47,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
             });
 
             const unsubUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
-                setUsers(snapshot.docs.map(doc => docToType<User>(doc)));
+                setStaffMembers(snapshot.docs.map(doc => docToType<StaffMember>(doc)));
+            });
+
+            const unsubDocuments = onSnapshot(collection(db, 'documents'), (snapshot) => {
+                setDocuments(snapshot.docs.map(doc => docToType<Document>(doc)));
             });
             
             // A simple way to stop the initial loading state.
@@ -57,6 +64,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
                 unsubProjects();
                 unsubTasks();
                 unsubUsers();
+                unsubDocuments();
             };
         };
         
@@ -64,7 +72,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }, []);
 
     return (
-        <DataContext.Provider value={{ projects, tasks, users, loading }}>
+        <DataContext.Provider value={{ projects, tasks, staffMembers, documents, loading }}>
             {children}
         </DataContext.Provider>
     );

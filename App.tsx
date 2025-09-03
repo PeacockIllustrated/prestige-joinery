@@ -10,6 +10,7 @@ import Documents from './components/pages/Documents';
 import Financials from './components/pages/Financials';
 import ClientPortal from './components/pages/ClientPortal';
 import Settings from './components/pages/Settings';
+import Staff from './components/pages/Staff';
 import { useData } from './hooks/useData';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
@@ -26,6 +27,8 @@ const App: React.FC = () => {
         return <Tasks />;
       case 'Schedule':
         return <Schedule />;
+      case 'Staff':
+        return <Staff />;
       case 'Documents':
         return <Documents />;
       case 'Financials':

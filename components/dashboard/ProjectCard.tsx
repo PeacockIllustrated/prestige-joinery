@@ -3,14 +3,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Project, BudgetStatus, Page } from '../../types';
 import ProgressBar from '../ui/ProgressBar';
 import Badge from '../ui/Badge';
-import { MoreHorizontalIcon, TasksIcon, CalendarIcon, FolderIcon } from '../icons/Icons';
+import { MoreHorizontalIcon, TasksIcon, CalendarIcon, FolderIcon, EditIcon, TrashIcon } from '../icons/Icons';
 
 interface ProjectCardProps {
   project: Project;
   setActivePage: (page: Page) => void;
+  onEdit: (project: Project) => void;
+  onDelete: (projectId: string) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage, onEdit, onDelete }) => {
   const { name, address, client, progress, budgetStatus, status } = project;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -47,12 +49,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage }) => 
                 <button 
                     className="text-gray-400 hover:text-prestige-charcoal p-1 -m-1"
                     onClick={() => setIsMenuOpen(prev => !prev)}
+                    aria-label="Project options"
                 >
                     <MoreHorizontalIcon />
                 </button>
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-prestige-gray animate-fade-in-scale-sm" style={{animationFillMode: 'forwards'}}>
                         <div className="p-1">
+                            <button onClick={() => onEdit(project)} className="w-full text-left px-3 py-2 text-sm text-prestige-charcoal hover:bg-prestige-gray rounded-md flex items-center transition-colors">
+                                <EditIcon className="w-4 h-4 mr-3 text-prestige-text"/> Edit Project
+                            </button>
+                             <div className="my-1 h-px bg-prestige-gray"></div>
                             <button onClick={() => handleMenuClick('Tasks')} className="w-full text-left px-3 py-2 text-sm text-prestige-charcoal hover:bg-prestige-gray rounded-md flex items-center transition-colors">
                                 <TasksIcon className="w-4 h-4 mr-3 text-prestige-text"/> View Tasks
                             </button>
@@ -61,6 +68,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage }) => 
                             </button>
                             <button onClick={() => handleMenuClick('Documents')} className="w-full text-left px-3 py-2 text-sm text-prestige-charcoal hover:bg-prestige-gray rounded-md flex items-center transition-colors">
                                 <FolderIcon className="w-4 h-4 mr-3 text-prestige-text"/> View Documents
+                            </button>
+                             <div className="my-1 h-px bg-prestige-gray"></div>
+                             <button onClick={() => onDelete(project.id)} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md flex items-center transition-colors">
+                                <TrashIcon className="w-4 h-4 mr-3"/> Delete Project
                             </button>
                         </div>
                     </div>

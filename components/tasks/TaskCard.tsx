@@ -9,8 +9,8 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
-  const { users } = useData();
-  const assignee = users.find(u => u.id === task.assigneeId);
+  const { staffMembers } = useData();
+  const assignee = staffMembers.find(u => u.id === task.assigneeId);
 
   const priorityStyles: Record<TaskPriority, { bg: string; text: string; icon: string }> = {
     [TaskPriority.Low]: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'text-blue-500' },

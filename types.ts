@@ -29,10 +29,13 @@ export enum TaskPriority {
   High = 'High',
 }
 
-export interface User {
+export interface StaffMember {
   id: string;
   name: string;
   avatarUrl: string;
+  role: string;
+  email: string;
+  phone: string;
 }
 
 export interface Task {
@@ -46,6 +49,20 @@ export interface Task {
   projectId: string;
 }
 
+export interface Document {
+  id: string;
+  name: string;
+  url: string;
+  projectId: string;
+  fileType: string;
+  storagePath: string;
+  uploadedAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
+
+
 export interface ProjectWithTasks extends Project {
     tasks: Task[];
 }
@@ -53,7 +70,8 @@ export interface ProjectWithTasks extends Project {
 export type Page = 
   | 'Project Hub' 
   | 'Tasks' 
-  | 'Schedule' 
+  | 'Schedule'
+  | 'Staff'
   | 'Documents' 
   | 'Financials' 
   | 'Client Portal' 

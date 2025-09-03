@@ -1,5 +1,5 @@
 import React from 'react';
-import { DashboardIcon, TasksIcon, CalendarIcon, FolderIcon, DollarSignIcon, UsersIcon, SettingsIcon, ChevronDownIcon } from '../icons/Icons';
+import { DashboardIcon, TasksIcon, CalendarIcon, FolderIcon, DollarSignIcon, UsersIcon, SettingsIcon, ChevronDownIcon, BriefcaseIcon } from '../icons/Icons';
 import { Page } from '../../types';
 
 interface SidebarProps {
@@ -61,6 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage }) => {
     { icon: <DashboardIcon />, label: 'Project Hub' },
     { icon: <TasksIcon />, label: 'Tasks' },
     { icon: <CalendarIcon />, label: 'Schedule' },
+    { icon: <BriefcaseIcon />, label: 'Staff' },
     { icon: <FolderIcon />, label: 'Documents' },
     { icon: <DollarSignIcon />, label: 'Financials' },
     { icon: <UsersIcon />, label: 'Client Portal' },
