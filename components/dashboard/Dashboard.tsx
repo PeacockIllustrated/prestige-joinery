@@ -1,7 +1,9 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { doc, addDoc, updateDoc, collection, writeBatch, query, where, getDocs } from 'firebase/firestore';
-import { ref, deleteObject } from 'firebase/storage';
+// FIX: Changed import path from 'firebase/storage' to '@firebase/storage' to resolve module export errors, which can occur with certain project dependency setups.
+import { ref, deleteObject } from '@firebase/storage';
 import { db, storage } from '../../firebase';
 import { ProjectStatus, Page, Project } from '../../types';
 import ProjectCard from './ProjectCard';

@@ -3,7 +3,7 @@ import { useData } from '../../hooks/useData';
 import { Project, ProjectStatus, CostItem } from '../../types';
 import { DollarSignIcon, TrendingUpIcon, AlertTriangleIcon, PlusIcon } from '../icons/Icons';
 import KPICard from '../financials/KPICard';
-import LaborCostModal from '../financials/LaborCostModal';
+import CostModal from '../financials/LaborCostModal';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../firebase';
 
@@ -17,7 +17,7 @@ interface ProjectFinancials extends Project {
 
 const Financials: React.FC = () => {
   const { projects, costs } = useData();
-  const [isLaborModalOpen, setIsLaborModalOpen] = useState(false);
+  const [isCostModalOpen, setIsCostModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const formatCurrency = (amount?: number) => {
@@ -70,24 +70,23 @@ const Financials: React.FC = () => {
     return { ...summary, profitability, totalProfit };
   }, [activeProjects, projectFinancials]);
 
-  const handleOpenLaborModal = (project: Project) => {
+  const handleOpenCostModal = (project: Project) => {
     setSelectedProject(project);
-    setIsLaborModalOpen(true);
+    setIsCostModalOpen(true);
   };
   
-  const handleSaveLaborCost = async (costData: Omit<CostItem, 'id' | 'projectId' | 'type'>) => {
+  const handleSaveCost = async (costData: Omit<CostItem, 'id' | 'projectId'>) => {
     if (!selectedProject) return;
     try {
         await addDoc(collection(db, 'costs'), {
             ...costData,
             projectId: selectedProject.id,
-            type: 'labor',
         });
     } catch(error) {
-        console.error("Error saving labor cost: ", error);
-        alert("There was an error saving the labor cost.");
+        console.error("Error saving cost: ", error);
+        alert("There was an error saving the cost item.");
     } finally {
-        setIsLaborModalOpen(false);
+        setIsCostModalOpen(false);
         setSelectedProject(null);
     }
   };
@@ -159,8 +158,8 @@ const Financials: React.FC = () => {
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.profit < 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(pf.profit)}</td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.margin < 0 ? 'text-red-600' : 'text-green-600'}`}>{pf.margin.toFixed(1)}%</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                      <button onClick={() => handleOpenLaborModal(pf)} className="text-prestige-teal hover:text-prestige-charcoal font-semibold flex items-center">
-                        <PlusIcon className="w-4 h-4 mr-1"/> Log Labor
+                      <button onClick={() => handleOpenCostModal(pf)} className="text-prestige-teal hover:text-prestige-charcoal font-semibold flex items-center">
+                        <PlusIcon className="w-4 h-4 mr-1"/> Add Cost
                       </button>
                     </td>
                   </tr>
@@ -171,11 +170,11 @@ const Financials: React.FC = () => {
         </div>
       </div>
     </div>
-    {isLaborModalOpen && selectedProject && (
-        <LaborCostModal 
-            isOpen={isLaborModalOpen}
-            onClose={() => setIsLaborModalOpen(false)}
-            onSave={handleSaveLaborCost}
+    {isCostModalOpen && selectedProject && (
+        <CostModal 
+            isOpen={isCostModalOpen}
+            onClose={() => setIsCostModalOpen(false)}
+            onSave={handleSaveCost}
             project={selectedProject}
         />
     )}

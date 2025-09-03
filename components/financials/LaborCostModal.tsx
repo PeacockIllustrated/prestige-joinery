@@ -1,19 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Project, CostItem } from '../../types';
+import { useData } from '../../hooks/useData';
 
-interface LaborCostModalProps {
+interface CostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (costData: Omit<CostItem, 'id' | 'projectId' | 'type'>) => void;
+  onSave: (costData: Omit<CostItem, 'id' | 'projectId'>) => void;
   project: Project;
 }
 
-const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave, project }) => {
+const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project }) => {
+  const { documents } = useData();
+  
   const [formData, setFormData] = useState({
     description: '',
     amount: 0,
     date: new Date().toISOString().split('T')[0],
+    type: 'material' as 'material' | 'labor',
+    documentId: '',
   });
+
+  const projectDocuments = useMemo(() => {
+    return documents.filter(doc => doc.projectId === project.id);
+  }, [documents, project.id]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -28,11 +37,13 @@ const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave
     };
   }, [isOpen, onClose]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    // The select element for 'type' is not a checkbox, but this handles number inputs correctly.
+    const isNumeric = type === 'number';
     setFormData(prev => ({ 
         ...prev, 
-        [name]: type === 'number' ? parseFloat(value) || 0 : value 
+        [name]: isNumeric ? parseFloat(value) || 0 : value 
     }));
   };
   
@@ -43,9 +54,9 @@ const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave
         return;
     }
     onSave({
-        description: formData.description,
-        amount: formData.amount,
+        ...formData,
         date: new Date(formData.date).toISOString(),
+        documentId: formData.documentId || undefined, // Send undefined if empty
     });
   };
 
@@ -66,14 +77,14 @@ const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave
       >
         <form onSubmit={handleSubmit}>
           <div className="p-6 border-b border-prestige-gray">
-            <h2 className="text-2xl font-bold text-prestige-charcoal">Log Labor Cost</h2>
+            <h2 className="text-2xl font-bold text-prestige-charcoal">Add Cost</h2>
             <p className="text-sm text-prestige-text">For project: <span className="font-semibold">{project.name}</span></p>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
               <label htmlFor="description" className={labelStyles}>Description</label>
-              <input type="text" name="description" id="description" value={formData.description} onChange={handleChange} required className={inputStyles} placeholder="e.g., John Doe - 8 hours" />
+              <input type="text" name="description" id="description" value={formData.description} onChange={handleChange} required className={inputStyles} placeholder="e.g., Timber from Bunnings" />
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -85,6 +96,22 @@ const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave
                     <input type="date" name="date" id="date" value={formData.date} onChange={handleChange} required className={inputStyles} />
                 </div>
             </div>
+             <div>
+                <label htmlFor="type" className={labelStyles}>Type</label>
+                <select name="type" id="type" value={formData.type} onChange={handleChange} className={inputStyles}>
+                    <option value="material">Material</option>
+                    <option value="labor">Labor</option>
+                </select>
+             </div>
+             <div>
+                <label htmlFor="documentId" className={labelStyles}>Link to Document (Optional)</label>
+                <select name="documentId" id="documentId" value={formData.documentId} onChange={handleChange} className={inputStyles}>
+                    <option value="">None</option>
+                    {projectDocuments.map(doc => (
+                        <option key={doc.id} value={doc.id}>{doc.name}</option>
+                    ))}
+                </select>
+             </div>
           </div>
 
           <div className="p-6 bg-prestige-light-gray flex justify-end items-center rounded-b-xl space-x-3">
@@ -106,4 +133,4 @@ const LaborCostModal: React.FC<LaborCostModalProps> = ({ isOpen, onClose, onSave
   );
 };
 
-export default LaborCostModal;
+export default CostModal;
