@@ -5,14 +5,15 @@ import { useData } from '../../hooks/useData';
 interface CostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (costData: Omit<CostItem, 'id' | 'projectId'>) => void;
+  onSave: (costData: Omit<CostItem, 'projectId'> & { id?: string }) => void;
   project: Project;
+  costToEdit?: CostItem | null;
 }
 
-const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project }) => {
+const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project, costToEdit }) => {
   const { documents } = useData();
   
-  const [formData, setFormData] = useState({
+  const getInitialFormData = () => ({
     description: '',
     amount: 0,
     date: new Date().toISOString().split('T')[0],
@@ -20,9 +21,27 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
     documentId: '',
   });
 
+  const [formData, setFormData] = useState(getInitialFormData());
+
   const projectDocuments = useMemo(() => {
     return documents.filter(doc => doc.projectId === project.id);
   }, [documents, project.id]);
+  
+  useEffect(() => {
+    if (isOpen) {
+        if (costToEdit) {
+            setFormData({
+                description: costToEdit.description,
+                amount: costToEdit.amount,
+                date: costToEdit.date.split('T')[0],
+                type: costToEdit.type,
+                documentId: costToEdit.documentId || '',
+            });
+        } else {
+            setFormData(getInitialFormData());
+        }
+    }
+  }, [isOpen, costToEdit, project.id]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -39,7 +58,6 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    // The select element for 'type' is not a checkbox, but this handles number inputs correctly.
     const isNumeric = type === 'number';
     setFormData(prev => ({ 
         ...prev, 
@@ -54,16 +72,14 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
         return;
     }
 
-    // Deconstruct to separate documentId
     const { documentId, ...rest } = formData;
     
-    const dataToSave: Omit<CostItem, 'id' | 'projectId'> = {
+    const dataToSave: Omit<CostItem, 'projectId'> & { id?: string } = {
         ...rest,
+        id: costToEdit?.id,
         date: new Date(formData.date).toISOString(),
     };
 
-    // Only add documentId to the object if it has a value.
-    // This prevents sending `documentId: undefined` to Firestore.
     if (documentId) {
         dataToSave.documentId = documentId;
     }
@@ -75,6 +91,7 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
 
   const inputStyles = "w-full text-prestige-charcoal bg-white border border-gray-300 rounded-lg px-3 py-2 transition-shadow focus:ring-2 focus:ring-prestige-teal/50 focus:border-prestige-teal focus:outline-none";
   const labelStyles = "block text-sm font-semibold text-prestige-charcoal mb-1";
+  const isEditing = !!costToEdit;
 
   return (
     <div 
@@ -88,7 +105,7 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
       >
         <form onSubmit={handleSubmit}>
           <div className="p-6 border-b border-prestige-gray">
-            <h2 className="text-2xl font-bold text-prestige-charcoal">Add Cost</h2>
+            <h2 className="text-2xl font-bold text-prestige-charcoal">{isEditing ? 'Edit Cost' : 'Add Cost'}</h2>
             <p className="text-sm text-prestige-text">For project: <span className="font-semibold">{project.name}</span></p>
           </div>
 
@@ -127,7 +144,9 @@ const CostModal: React.FC<CostModalProps> = ({ isOpen, onClose, onSave, project 
 
           <div className="p-6 bg-prestige-light-gray flex justify-end items-center rounded-b-xl space-x-3">
              <button type="button" onClick={onClose} className="px-5 py-2.5 bg-white border border-prestige-gray text-prestige-charcoal font-bold rounded-lg hover:bg-prestige-gray transition">Cancel</button>
-             <button type="submit" className="px-5 py-2.5 bg-prestige-teal text-prestige-charcoal font-bold rounded-lg shadow-sm hover:bg-opacity-90 transition">Save Cost</button>
+             <button type="submit" className="px-5 py-2.5 bg-prestige-teal text-prestige-charcoal font-bold rounded-lg shadow-sm hover:bg-opacity-90 transition">
+                {isEditing ? 'Save Changes' : 'Save Cost'}
+             </button>
           </div>
         </form>
       </div>

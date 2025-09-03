@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { useData } from '../../hooks/useData';
-import { Project, ProjectStatus, CostItem } from '../../types';
-import { DollarSignIcon, TrendingUpIcon, AlertTriangleIcon, PlusIcon } from '../icons/Icons';
+import { Project, ProjectStatus, CostItem, Document } from '../../types';
+import { DollarSignIcon, TrendingUpIcon, AlertTriangleIcon, PlusIcon, ChevronDownIcon, FileTextIcon, EditIcon, TrashIcon } from '../icons/Icons';
 import KPICard from '../financials/KPICard';
 import CostModal from '../financials/LaborCostModal';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
+import Badge from '../ui/Badge';
 
 interface ProjectFinancials extends Project {
     materialCosts: number;
@@ -15,10 +16,74 @@ interface ProjectFinancials extends Project {
     margin: number;
 }
 
+const ProjectCostDetails: React.FC<{ 
+    costs: CostItem[]; 
+    documents: Document[]; 
+    onEdit: (cost: CostItem) => void; 
+    onDelete: (costId: string) => void;
+}> = ({ costs, documents, onEdit, onDelete }) => {
+
+    const formatCurrency = (amount: number) => amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    const getDocument = (docId: string) => documents.find(d => d.id === docId);
+
+    if (costs.length === 0) {
+        return <div className="p-6 text-center text-prestige-text bg-prestige-light-gray/50">No costs have been logged for this project yet.</div>;
+    }
+
+    return (
+        <div className="bg-prestige-light-gray/50 p-4 animate-accordion-down">
+            <div className="overflow-x-auto">
+                <table className="min-w-full text-left bg-white rounded-lg shadow-inner">
+                    <thead className="border-b border-prestige-gray">
+                        <tr>
+                            <th scope="col" className="px-4 py-2 text-xs font-semibold text-prestige-charcoal">Date</th>
+                            <th scope="col" className="px-4 py-2 text-xs font-semibold text-prestige-charcoal">Description</th>
+                            <th scope="col" className="px-4 py-2 text-xs font-semibold text-prestige-charcoal">Type</th>
+                            <th scope="col" className="px-4 py-2 text-xs font-semibold text-prestige-charcoal">Linked Document</th>
+                            <th scope="col" className="px-4 py-2 text-xs font-semibold text-prestige-charcoal text-right">Amount</th>
+                            <th scope="col" className="relative px-4 py-2"><span className="sr-only">Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-prestige-gray">
+                        {costs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(cost => {
+                            const linkedDoc = cost.documentId ? getDocument(cost.documentId) : null;
+                            return (
+                                <tr key={cost.id}>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-prestige-text">{new Date(cost.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}</td>
+                                    <td className="px-4 py-3 text-sm text-prestige-charcoal font-medium truncate max-w-xs">{cost.description}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                        <Badge text={cost.type} color={cost.type === 'material' ? 'blue' : 'yellow'} />
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                        {linkedDoc ? (
+                                            <a href={linkedDoc.url} target="_blank" rel="noopener noreferrer" className="flex items-center text-prestige-teal hover:underline">
+                                                <FileTextIcon className="w-4 h-4 mr-1.5" />
+                                                <span className="truncate max-w-xs">{linkedDoc.name}</span>
+                                            </a>
+                                        ) : <span className="text-prestige-text">-</span>}
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-prestige-text text-right font-semibold">{formatCurrency(cost.amount)}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-center space-x-2">
+                                        <button onClick={() => onEdit(cost)} className="text-prestige-text hover:text-prestige-charcoal p-1 rounded-full hover:bg-prestige-gray"><EditIcon className="w-4 h-4" /></button>
+                                        <button onClick={() => onDelete(cost.id)} className="text-prestige-text hover:text-red-600 p-1 rounded-full hover:bg-red-50"><TrashIcon className="w-4 h-4" /></button>
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+
 const Financials: React.FC = () => {
-  const { projects, costs } = useData();
+  const { projects, costs, documents } = useData();
   const [isCostModalOpen, setIsCostModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [costModalProject, setCostModalProject] = useState<Project | null>(null);
+  const [editingCost, setEditingCost] = useState<CostItem | null>(null);
+  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
 
   const formatCurrency = (amount?: number) => {
     if (typeof amount !== 'number') return '$0.00';
@@ -71,62 +136,71 @@ const Financials: React.FC = () => {
   }, [activeProjects, projectFinancials]);
 
   const handleOpenCostModal = (project: Project) => {
-    setSelectedProject(project);
+    setCostModalProject(project);
+    setEditingCost(null);
     setIsCostModalOpen(true);
   };
   
-  const handleSaveCost = async (costData: Omit<CostItem, 'id' | 'projectId'>) => {
-    if (!selectedProject) return;
+  const handleEditCost = (cost: CostItem) => {
+    const project = projects.find(p => p.id === cost.projectId);
+    if(project){
+        setCostModalProject(project);
+        setEditingCost(cost);
+        setIsCostModalOpen(true);
+    }
+  };
+  
+  const handleDeleteCost = async (costId: string) => {
+    if (!window.confirm("Are you sure you want to delete this cost item?")) return;
     try {
-        await addDoc(collection(db, 'costs'), {
-            ...costData,
-            projectId: selectedProject.id,
-        });
+        await deleteDoc(doc(db, 'costs', costId));
+    } catch(error) {
+        console.error("Error deleting cost item: ", error);
+        alert("There was an error deleting the cost item.");
+    }
+  };
+
+  const handleSaveCost = async (costData: Omit<CostItem, 'projectId'> & { id?: string }) => {
+    const { id, ...data } = costData;
+    try {
+        if (id) {
+            const costRef = doc(db, 'costs', id);
+            await updateDoc(costRef, data);
+        } else if (costModalProject) {
+            await addDoc(collection(db, 'costs'), {
+                ...data,
+                projectId: costModalProject.id,
+            });
+        } else {
+             throw new Error("Cannot save cost without a project context.");
+        }
     } catch(error) {
         console.error("Error saving cost: ", error);
         alert("There was an error saving the cost item.");
     } finally {
         setIsCostModalOpen(false);
-        setSelectedProject(null);
+        setCostModalProject(null);
+        setEditingCost(null);
     }
   };
-
+  
+  const handleToggleExpand = (projectId: string) => {
+    setExpandedProjectId(prevId => prevId === projectId ? null : projectId);
+  };
 
   return (
     <>
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-            <h1 className="text-3xl font-bold text-prestige-charcoal">Financial Overview</h1>
-            <p className="text-prestige-text mt-1">Summary of all active projects.</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-prestige-charcoal">Financial Overview</h1>
+        <p className="text-prestige-text mt-1">Summary of all active projects.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard 
-          title="Total Quoted"
-          value={formatCurrency(financialSummary.totalQuoted)}
-          icon={<DollarSignIcon />}
-          colorClass="bg-blue-500"
-        />
-        <KPICard 
-          title="Total Job Cost"
-          value={formatCurrency(financialSummary.totalCost)}
-          icon={<DollarSignIcon />}
-          colorClass="bg-yellow-500"
-        />
-        <KPICard 
-          title="Overall Profit"
-          value={formatCurrency(financialSummary.totalProfit)}
-          icon={<TrendingUpIcon />}
-          colorClass={financialSummary.profitability >= 0 ? "bg-green-500" : "bg-red-500"}
-        />
-        <KPICard 
-          title="Projects Over Budget"
-          value={String(financialSummary.projectsOverBudget)}
-          icon={<AlertTriangleIcon />}
-          colorClass={financialSummary.projectsOverBudget > 0 ? "bg-red-500" : "bg-prestige-teal"}
-        />
+        <KPICard title="Total Quoted" value={formatCurrency(financialSummary.totalQuoted)} icon={<DollarSignIcon />} colorClass="bg-blue-500" />
+        <KPICard title="Total Job Cost" value={formatCurrency(financialSummary.totalCost)} icon={<DollarSignIcon />} colorClass="bg-yellow-500" />
+        <KPICard title="Overall Profit" value={formatCurrency(financialSummary.totalProfit)} icon={<TrendingUpIcon />} colorClass={financialSummary.profitability >= 0 ? "bg-green-500" : "bg-red-500"} />
+        <KPICard title="Projects Over Budget" value={String(financialSummary.projectsOverBudget)} icon={<AlertTriangleIcon />} colorClass={financialSummary.projectsOverBudget > 0 ? "bg-red-500" : "bg-prestige-teal"} />
       </div>
 
       <div className="bg-white rounded-xl shadow-md border border-prestige-gray/50 overflow-hidden">
@@ -149,20 +223,39 @@ const Financials: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-prestige-gray">
               {projectFinancials.map(pf => (
-                  <tr key={pf.id} className="hover:bg-prestige-light-gray/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-prestige-charcoal">{pf.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.quoteAmount)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.materialCosts)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.laborCosts)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-prestige-charcoal">{formatCurrency(pf.totalCost)}</td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.profit < 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(pf.profit)}</td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.margin < 0 ? 'text-red-600' : 'text-green-600'}`}>{pf.margin.toFixed(1)}%</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                      <button onClick={() => handleOpenCostModal(pf)} className="text-prestige-teal hover:text-prestige-charcoal font-semibold flex items-center">
-                        <PlusIcon className="w-4 h-4 mr-1"/> Add Cost
-                      </button>
-                    </td>
-                  </tr>
+                  <React.Fragment key={pf.id}>
+                    <tr className="hover:bg-prestige-light-gray/50 transition-colors cursor-pointer" onClick={() => handleToggleExpand(pf.id)}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-prestige-charcoal">
+                        <div className="flex items-center">
+                          <ChevronDownIcon className={`w-5 h-5 mr-2 transition-transform duration-200 ${expandedProjectId === pf.id ? 'rotate-180' : ''}`} />
+                          {pf.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.quoteAmount)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.materialCosts)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-prestige-text">{formatCurrency(pf.laborCosts)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-prestige-charcoal">{formatCurrency(pf.totalCost)}</td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.profit < 0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(pf.profit)}</td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${pf.margin < 0 ? 'text-red-600' : 'text-green-600'}`}>{pf.margin.toFixed(1)}%</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                        <button onClick={(e) => { e.stopPropagation(); handleOpenCostModal(pf); }} className="text-prestige-teal hover:text-prestige-charcoal font-semibold flex items-center">
+                          <PlusIcon className="w-4 h-4 mr-1"/> Add Cost
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedProjectId === pf.id && (
+                        <tr>
+                            <td colSpan={8}>
+                                <ProjectCostDetails 
+                                    costs={costs.filter(c => c.projectId === pf.id)}
+                                    documents={documents}
+                                    onEdit={handleEditCost}
+                                    onDelete={handleDeleteCost}
+                                />
+                            </td>
+                        </tr>
+                    )}
+                  </React.Fragment>
                 )
               )}
             </tbody>
@@ -170,12 +263,13 @@ const Financials: React.FC = () => {
         </div>
       </div>
     </div>
-    {isCostModalOpen && selectedProject && (
+    {isCostModalOpen && costModalProject && (
         <CostModal 
             isOpen={isCostModalOpen}
             onClose={() => setIsCostModalOpen(false)}
             onSave={handleSaveCost}
-            project={selectedProject}
+            project={costModalProject}
+            costToEdit={editingCost}
         />
     )}
     </>
