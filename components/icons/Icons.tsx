@@ -204,3 +204,18 @@ export const ClockIcon: React.FC<IconProps> = (props) => (
     <polyline points="12 6 12 12 16 14"></polyline>
   </svg>
 );
+
+export const BookOpenIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+  </svg>
+);
+
+export const LightbulbIcon: React.FC<IconProps> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9 18h6"></path>
+    <path d="M10 22h4"></path>
+    <path d="M12 2a7 7 0 0 0-7 7c0 3.03 1.09 5.2 2.5 6.5C9.09 17.16 10 18.01 10 19h4c0-.99.91-1.84 2.5-3.5.91-.86 2.5-3.47 2.5-6.5a7 7 0 0 0-7-7z"></path>
+  </svg>
+);

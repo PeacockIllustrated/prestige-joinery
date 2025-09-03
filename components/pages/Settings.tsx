@@ -2,14 +2,16 @@
 import React from 'react';
 import { useData } from '../../hooks/useData';
 import ToggleSwitch from '../ui/ToggleSwitch';
+import AdminGuide from '../settings/AdminGuide';
+import ChangeRequestForm from '../settings/ChangeRequestForm';
 
 const Settings: React.FC = () => {
   const { showSampleData, toggleShowSampleData } = useData();
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-prestige-charcoal">Settings</h1>
-        <p className="text-prestige-text mt-1">Manage your application preferences.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-prestige-charcoal">Settings & Guide</h1>
+        <p className="text-prestige-text mt-1">Manage application preferences and learn how to use the dashboard.</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-md border border-prestige-gray/50 overflow-hidden">
@@ -28,6 +30,10 @@ const Settings: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <AdminGuide />
+
+      <ChangeRequestForm />
     </div>
   );
 };

@@ -93,3 +93,20 @@ export type Page =
   | 'Financials' 
   | 'Client Portal' 
   | 'Settings';
+
+export enum ChangeRequestPriority {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
+}
+
+export interface ChangeRequest {
+  id: string;
+  description: string;
+  featureArea: Page;
+  priority: ChangeRequestPriority;
+  submittedAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
