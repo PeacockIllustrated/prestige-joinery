@@ -47,7 +47,7 @@ const UserProfile: React.FC = () => (
       <div className="flex items-center">
         <img className="h-10 w-10 rounded-full object-cover" src="https://picsum.photos/100" alt="User" />
         <div className="ml-3">
-          <p className="text-sm font-semibold text-white">James Roberts</p>
+          <p className="text-sm font-semibold text-white">Lee Collins</p>
           <p className="text-xs text-gray-400">Project Manager</p>
         </div>
       </div>
