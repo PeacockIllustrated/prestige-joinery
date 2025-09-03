@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { useData } from '../../hooks/useData';
 import ProjectSelector from '../documents/ProjectSelector';
 import DocumentManager from '../documents/DocumentManager';
 
 const Documents: React.FC = () => {
-  const { projects, documents } = useData();
+  const { projects, documents, costs } = useData();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projects[0]?.id || null);
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
@@ -29,6 +28,7 @@ const Documents: React.FC = () => {
         <DocumentManager
           project={selectedProject || null}
           documents={projectDocuments}
+          costs={costs}
         />
       </div>
     </div>

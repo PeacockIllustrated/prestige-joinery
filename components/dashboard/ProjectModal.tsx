@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Project, ProjectStatus, BudgetStatus } from '../../types';
+import { Project, ProjectStatus } from '../../types';
 import { TrashIcon } from '../icons/Icons';
 
 interface ProjectModalProps {
@@ -10,14 +9,16 @@ interface ProjectModalProps {
   onDelete: (projectId: string) => void;
 }
 
+type ProjectFormData = Omit<Project, 'id'>;
+
 const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, onDelete }) => {
-  const [formData, setFormData] = useState<Omit<Project, 'id'>>({
+  const [formData, setFormData] = useState<ProjectFormData>({
     name: '',
     address: '',
     client: '',
     progress: 0,
     status: ProjectStatus.Quoting,
-    budgetStatus: 'On Track',
+    quoteAmount: 0,
   });
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
             client: '',
             progress: 0,
             status: ProjectStatus.Quoting,
-            budgetStatus: 'On Track',
+            quoteAmount: 0,
         });
     }
   }, [project]);
@@ -51,7 +52,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: name === 'progress' ? parseInt(value) : value }));
+    const isNumberField = ['progress', 'quoteAmount'].includes(name);
+    setFormData(prev => ({ 
+        ...prev, 
+        [name]: isNumberField ? parseFloat(value) || 0 : value 
+    }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -102,20 +107,19 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose, onSave, o
                 <input type="text" name="client" id="client" value={formData.client} onChange={handleChange} required className={inputStyles} />
               </div>
                <div>
-                <label htmlFor="progress" className={labelStyles}>Progress (%)</label>
-                <input type="number" name="progress" id="progress" value={formData.progress} onChange={handleChange} min="0" max="100" className={inputStyles} />
-              </div>
-              <div>
                 <label htmlFor="status" className={labelStyles}>Status</label>
                 <select name="status" id="status" value={formData.status} onChange={handleChange} className={inputStyles}>
                   {Object.values(ProjectStatus).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
-                <label htmlFor="budgetStatus" className={labelStyles}>Budget Status</label>
-                <select name="budgetStatus" id="budgetStatus" value={formData.budgetStatus} onChange={handleChange} className={inputStyles}>
-                   {(['On Track', 'Over', 'Under'] as BudgetStatus[]).map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+                <label htmlFor="quoteAmount" className={labelStyles}>Quote Amount ($)</label>
+                <input type="number" name="quoteAmount" id="quoteAmount" value={formData.quoteAmount} onChange={handleChange} min="0" step="0.01" className={inputStyles} />
+              </div>
+               <div className="md:col-span-2">
+                <label htmlFor="progress" className={labelStyles}>Progress (%)</label>
+                <input type="range" name="progress" id="progress" value={formData.progress} onChange={handleChange} min="0" max="100" className="w-full h-2 bg-prestige-gray rounded-lg appearance-none cursor-pointer" />
+                <div className="text-center font-semibold text-prestige-text mt-1">{formData.progress}%</div>
               </div>
             </div>
           </div>

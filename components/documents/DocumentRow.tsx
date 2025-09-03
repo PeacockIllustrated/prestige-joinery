@@ -1,18 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Document } from '../../types';
-import { MoreHorizontalIcon, DownloadIcon, TrashIcon, FileTextIcon } from '../icons/Icons';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Document, CostItem } from '../../types';
+import { MoreHorizontalIcon, DownloadIcon, TrashIcon, FileTextIcon, ReceiptIcon } from '../icons/Icons';
+import Badge from '../ui/Badge';
 
 interface DocumentRowProps {
   document: Document;
+  costs: CostItem[];
+  isProcessing: boolean;
   onDelete: (document: Document) => void;
+  onProcess: (document: Document) => void;
 }
 
-// FIX: Renamed the `document` prop to `documentProp` during destructuring to avoid shadowing the global `document` object.
-const DocumentRow: React.FC<DocumentRowProps> = ({ document: documentProp, onDelete }) => {
+const DocumentRow: React.FC<DocumentRowProps> = ({ document: documentProp, costs, isProcessing, onDelete, onProcess }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
   const formattedDate = new Date(documentProp.uploadedAt.seconds * 1000).toLocaleDateString();
+
+  const isProcessed = useMemo(() => {
+    return costs.some(cost => cost.documentId === documentProp.id);
+  }, [costs, documentProp.id]);
+
+  const isImage = useMemo(() => {
+    return documentProp.fileType.startsWith('image/');
+  }, [documentProp.fileType]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,7 +45,12 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ document: documentProp, onDel
   const handleDelete = () => {
     onDelete(documentProp);
     setIsMenuOpen(false);
-  }
+  };
+
+  const handleProcess = () => {
+    onProcess(documentProp);
+    setIsMenuOpen(false);
+  };
 
   return (
     <tr className="hover:bg-prestige-light-gray/50 transition-colors">
@@ -61,6 +77,18 @@ const DocumentRow: React.FC<DocumentRowProps> = ({ document: documentProp, onDel
                         <button onClick={handleDownload} className="w-full text-left px-3 py-2 text-sm text-prestige-charcoal hover:bg-prestige-gray rounded-md flex items-center transition-colors">
                             <DownloadIcon className="w-4 h-4 mr-3 text-prestige-text"/> Download
                         </button>
+                        {isImage && (
+                          isProcessed ? (
+                             <div className="px-3 py-2 text-sm text-prestige-text flex items-center">
+                               <Badge text="Processed" color="green"/>
+                             </div>
+                          ) : (
+                            <button onClick={handleProcess} disabled={isProcessing} className="w-full text-left px-3 py-2 text-sm text-prestige-charcoal hover:bg-prestige-gray rounded-md flex items-center transition-colors disabled:opacity-50">
+                                <ReceiptIcon className="w-4 h-4 mr-3 text-prestige-text"/> 
+                                {isProcessing ? 'Processing...' : 'Process Invoice'}
+                            </button>
+                          )
+                        )}
                          <div className="my-1 h-px bg-prestige-gray"></div>
                          <button onClick={handleDelete} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md flex items-center transition-colors">
                             <TrashIcon className="w-4 h-4 mr-3"/> Delete

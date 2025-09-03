@@ -1,13 +1,14 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { collection, onSnapshot, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Project, Task, StaffMember, Document } from '../types';
+import { Project, Task, StaffMember, Document, CostItem } from '../types';
 
 interface DataContextProps {
     projects: Project[];
     tasks: Task[];
     staffMembers: StaffMember[];
     documents: Document[];
+    costs: CostItem[];
     loading: boolean;
 }
 
@@ -16,6 +17,7 @@ export const DataContext = createContext<DataContextProps>({
     tasks: [],
     staffMembers: [],
     documents: [],
+    costs: [],
     loading: true,
 });
 
@@ -32,6 +34,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
     const [documents, setDocuments] = useState<Document[]>([]);
+    const [costs, setCosts] = useState<CostItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -54,6 +57,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
                 setDocuments(snapshot.docs.map(doc => docToType<Document>(doc)));
             });
             
+            const unsubCosts = onSnapshot(collection(db, 'costs'), (snapshot) => {
+                setCosts(snapshot.docs.map(doc => docToType<CostItem>(doc)));
+            });
+
             // A simple way to stop the initial loading state.
             // In a real app with larger datasets, you might wait for the first snapshot of all collections.
             setTimeout(() => setLoading(false), 1500);
@@ -65,6 +72,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
                 unsubTasks();
                 unsubUsers();
                 unsubDocuments();
+                unsubCosts();
             };
         };
         
@@ -72,7 +80,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }, []);
 
     return (
-        <DataContext.Provider value={{ projects, tasks, staffMembers, documents, loading }}>
+        <DataContext.Provider value={{ projects, tasks, staffMembers, documents, costs, loading }}>
             {children}
         </DataContext.Provider>
     );

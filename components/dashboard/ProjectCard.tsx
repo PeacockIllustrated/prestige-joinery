@@ -1,8 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Project, BudgetStatus, Page } from '../../types';
+import { Project, Page } from '../../types';
 import ProgressBar from '../ui/ProgressBar';
-import Badge from '../ui/Badge';
 import { MoreHorizontalIcon, TasksIcon, CalendarIcon, FolderIcon, EditIcon, TrashIcon } from '../icons/Icons';
 
 interface ProjectCardProps {
@@ -13,15 +11,9 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage, onEdit, onDelete }) => {
-  const { name, address, client, progress, budgetStatus, status } = project;
+  const { name, address, client, progress, status } = project;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const budgetColorMap: Record<BudgetStatus, 'green' | 'red' | 'yellow'> = {
-    'On Track': 'green',
-    'Under': 'green',
-    'Over': 'red',
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -89,10 +81,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, setActivePage, onEdi
           <span className="text-sm font-bold text-prestige-charcoal">{progress}%</span>
         </div>
         <ProgressBar progress={progress} />
-        <div className="mt-4 flex justify-between items-center">
-            <p className="text-sm font-medium text-prestige-text">Budget:</p>
-            <Badge text={budgetStatus} color={budgetColorMap[budgetStatus]} />
-        </div>
       </div>
       <style>{`
         @keyframes fade-in-scale-sm {

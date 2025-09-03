@@ -5,16 +5,14 @@ export enum ProjectStatus {
   OnHold = 'On Hold',
 }
 
-export type BudgetStatus = 'On Track' | 'Over' | 'Under';
-
 export interface Project {
   id: string;
   name: string;
   address: string;
   client: string;
   progress: number; // Percentage 0-100
-  budgetStatus: BudgetStatus;
   status: ProjectStatus;
+  quoteAmount?: number;
 }
 
 export enum TaskStatus {
@@ -62,6 +60,21 @@ export interface Document {
   };
 }
 
+export interface CostItem {
+  id: string;
+  projectId: string;
+  description: string;
+  amount: number;
+  type: 'material' | 'labor';
+  date: string; // ISO 8601 format
+  documentId?: string; // Optional link to a document
+}
+
+export interface InvoiceData {
+  vendor: string;
+  date: string; // Expects YYYY-MM-DD
+  totalAmount: number;
+}
 
 export interface ProjectWithTasks extends Project {
     tasks: Task[];

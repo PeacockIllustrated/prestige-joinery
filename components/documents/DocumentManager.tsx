@@ -3,18 +3,26 @@ import { v4 as uuidv4 } from 'uuid';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { storage, db } from '../../firebase';
-import { Project, Document } from '../../types';
+import { Project, Document, CostItem, InvoiceData } from '../../types';
 import { UploadIcon, FolderIcon } from '../icons/Icons';
 import Placeholder from '../ui/Placeholder';
 import DocumentRow from './DocumentRow';
+import { processInvoice } from '../../services/geminiService';
+import { fileToBase64 } from '../../utils/fileUtils';
+import InvoiceConfirmationModal from './InvoiceConfirmationModal';
 
 interface DocumentManagerProps {
   project: Project | null;
   documents: Document[];
+  costs: CostItem[];
 }
 
-const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents }) => {
+const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents, costs }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null); // Holds ID of doc being processed
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+  const [selectedDocForInvoice, setSelectedDocForInvoice] = useState<Document | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUploadClick = () => {
@@ -50,7 +58,6 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents })
       alert("There was an error uploading the file. Please try again.");
     } finally {
       setIsUploading(false);
-      // Reset file input
       if(fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -60,15 +67,56 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents })
         return;
     }
     try {
-        // Delete from storage
         const fileRef = ref(storage, document.storagePath);
         await deleteObject(fileRef);
 
-        // Delete from firestore
         await deleteDoc(doc(db, 'documents', document.id));
     } catch(error) {
         console.error("Error deleting document: ", error);
         alert("There was an error deleting the document. Please try again.");
+    }
+  };
+
+  const handleProcessInvoice = async (documentToProcess: Document) => {
+    setIsProcessing(documentToProcess.id);
+    try {
+        const response = await fetch(documentToProcess.url);
+        const blob = await response.blob();
+        const file = new File([blob], documentToProcess.name, { type: documentToProcess.fileType });
+        const base64String = await fileToBase64(file);
+        
+        const extractedData = await processInvoice(base64String, documentToProcess.fileType);
+        
+        setInvoiceData(extractedData);
+        setSelectedDocForInvoice(documentToProcess);
+        setIsConfirmationOpen(true);
+
+    } catch (error) {
+        console.error("Error processing invoice:", error);
+        alert(`Failed to process invoice: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+        setIsProcessing(null);
+    }
+  };
+  
+  const handleConfirmInvoice = async (confirmedData: InvoiceData) => {
+    if (!project || !selectedDocForInvoice) return;
+    try {
+        await addDoc(collection(db, 'costs'), {
+            projectId: project.id,
+            description: `Invoice from ${confirmedData.vendor}`,
+            amount: confirmedData.totalAmount,
+            type: 'material',
+            date: new Date(confirmedData.date).toISOString(),
+            documentId: selectedDocForInvoice.id,
+        });
+    } catch (error) {
+        console.error("Error saving cost from invoice:", error);
+        alert("There was an error saving the cost item.");
+    } finally {
+        setIsConfirmationOpen(false);
+        setInvoiceData(null);
+        setSelectedDocForInvoice(null);
     }
   };
 
@@ -111,7 +159,14 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents })
                 </thead>
                 <tbody className="bg-white divide-y divide-prestige-gray">
                     {documents.sort((a, b) => b.uploadedAt.seconds - a.uploadedAt.seconds).map(doc => (
-                        <DocumentRow key={doc.id} document={doc} onDelete={handleDeleteDocument} />
+                        <DocumentRow 
+                            key={doc.id} 
+                            document={doc} 
+                            costs={costs}
+                            isProcessing={isProcessing === doc.id}
+                            onDelete={handleDeleteDocument} 
+                            onProcess={handleProcessInvoice}
+                        />
                     ))}
                 </tbody>
             </table>
@@ -125,6 +180,15 @@ const DocumentManager: React.FC<DocumentManagerProps> = ({ project, documents })
             </div>
         )}
       </div>
+      {isConfirmationOpen && selectedDocForInvoice && invoiceData && (
+        <InvoiceConfirmationModal
+            isOpen={isConfirmationOpen}
+            onClose={() => setIsConfirmationOpen(false)}
+            onConfirm={handleConfirmInvoice}
+            initialData={invoiceData}
+            imageUrl={selectedDocForInvoice.url}
+        />
+      )}
     </>
   );
 };
